@@ -28,7 +28,7 @@ module register_file_tb;
   // interface
   register_file_if rfif ();
   // test program
-  test PROG ();
+  test PROG (CLK, nRST, rfif.tb);
   // DUT
 `ifndef MAPPED
   register_file DUT(CLK, nRST, rfif);
@@ -48,5 +48,72 @@ module register_file_tb;
 
 endmodule
 
-program test;
+program test(
+
+input logic CLK, 
+output logic nRST,
+register_file_if.tb rfif
+
+);
+   initial begin
+   nRST = 0;
+   rfif.WEN = 0;
+   rfif.rsel1 = 0;
+   rfif.rsel2 = 0;
+
+   @(posedge CLK);
+      nRST = 1;
+      
+   reset();
+   write_regs();
+   reset();
+   write_regs();
+   read_reg_1();
+   read_reg_2();         
+
+   end
+
+   //Reset all of the registers
+   task reset();
+      nRST = 0;
+        @(posedge CLK);
+      nRST = 1;
+      
+   endtask // reset
+
+   //write to all of the registers
+   task write_regs();
+      rfif.WEN = 1;
+        for(int i=0 ; i<32; i++)
+	begin
+	   rfif.wdat = i; //set the value equal to the reg number
+	   rfif.wsel = i;
+	     @(posedge CLK);
+	
+	end
+   endtask // write_regs
+
+   //read from the first read port
+   task read_reg_1();
+      for(int i=0;i<32;i++)
+	begin
+	   rfif.rsel1 = i;
+	     @(posedge CLK);
+	   
+	end
+   endtask // read_reg_1
+
+   //read from the second read port
+   task read_reg_2();
+     for(int i=0;i<32;i++)
+	begin
+	   rfif.rsel2 = i;
+	     @(posedge CLK);
+	end
+   endtask // read_reg_1
+   
+      
+      
+
+   
 endprogram
