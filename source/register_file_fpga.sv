@@ -20,10 +20,13 @@ module register_file_fpga (
   // rf
   register_file RF(CLOCK_50, KEY[2], rfif);
 
-assign rfif.wsel = SW[4:0];
-assign rfif.rsel1 = SW[9:5];
-assign rfif.rsel2 = SW[14:10];
+
+
+
 assign rfif.wdat = {29'b0,SW[17:15]};
+assign rfif.rsel2 = SW[14:10];
+assign rfif.rsel1 = SW[9:5];
+assign rfif.wsel = SW[4:0];
 
 assign rfif.WEN = ~KEY[3];
 

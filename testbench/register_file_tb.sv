@@ -64,32 +64,43 @@ register_file_if.tb rfif
    @(posedge CLK);
       nRST = 1;
       
-   reset();
-   write_regs();
-   reset();
-   write_regs();
+   reset(); //test asynchronous reset
+   
+   write_regs(); //test wsel and wen, 0 register
+   
+      
+   reset(); //test reset
+   
+   rfif.WEN = 0;   
+   @(posedge CLK);
+   write_regs(); //try writing to regs with wen low
+   rfif.WEN = 1; //toggle wen
+   @(posedge CLK);
+   write_regs(); //try writing to regs again with wen high
+      
    read_reg_1();
-   read_reg_2();         
+   read_reg_2();
+            
 
    end
 
+   
    //Reset all of the registers
    task reset();
       nRST = 0;
         @(posedge CLK);
       nRST = 1;
-      
+      rfif.WEN=1;
    endtask // reset
 
    //write to all of the registers
    task write_regs();
-      rfif.WEN = 1;
+      //rfif.WEN = 1;
         for(int i=0 ; i<32; i++)
 	begin
 	   rfif.wdat = i; //set the value equal to the reg number
 	   rfif.wsel = i;
 	     @(posedge CLK);
-	
 	end
    endtask // write_regs
 
