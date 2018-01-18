@@ -98,7 +98,7 @@ register_file_if.tb rfif
       //rfif.WEN = 1;
         for(int i=0 ; i<32; i++)
 	begin
-	   rfif.wdat = i; //set the value equal to the reg number
+	   rfif.wdat = i+1; //set the value equal to the reg number
 	   rfif.wsel = i;
 	     @(posedge CLK);
 	end

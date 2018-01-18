@@ -4,7 +4,7 @@ mill`576@purdue.edu
 */
 
 `include "register_file_if.vh"
-`include "cpu_types_pkg.vh"
+
 
 //register_file_if rfif(); //instantiate the interface
 parameter WORD_W    = 32;

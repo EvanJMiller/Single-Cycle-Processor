@@ -9,12 +9,16 @@
  `define ALU_IF_VH
 
 
+`include "cpu_types_pkg.vh" //for ALU cases
+   
+
 interface alu_if;
    import cpu_types_pkg::*;
 
    word_t portA, portB, result;
    logic [0:3] aluop;
-   logic neg, ovf, zero
+   logic       neg, ovf, zero;
+   
 
    modport alu(input portA, portB, aluop,
 	       output neg, ovf, zero, result

@@ -1,0 +1,31 @@
+//#Program 1
+//---------------------------------------------------------------------
+	org 0x0000 //start of the program
+
+	ori $sp,$zero,0xfffc  //store the starting point of the stack
+	ori $s3, $zero, 0x0001
+//initial values
+//clear temp registers
+	and $s1, $s1, $zero
+	and $s2, $s2, $zero
+
+//set values to be multiplied
+	addi $s1, $s1, 4 
+	addi $s2, $s2, 3 
+
+//Push initial values onto the stack
+	addi $sp, $sp, -8 //set up stack to push two values
+	sw $s1, 8($sp) //push the first values onto the stack (4)
+	sw $s2, 4($sp) //push the second value onto the stack (3)
+
+MULTIPLY:
+	and $t0, $t0, $zero
+	lw $t1, 0($sp) //pop / load first word off of the stack
+	lw $t2, 4($sp) //pop / load second word off of the stack
+
+Loop: 
+	add $t0, $t0, $t2 //add the running sum by the second number
+	subu $t1, $t1, $s3 //decrement the first number
+	beq $t1, $zero, Exit //exit if the first num is 0
+	j Loop //Loop back
+Exit:

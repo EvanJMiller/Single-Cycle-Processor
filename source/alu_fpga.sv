@@ -4,13 +4,16 @@
  email:mill1576@purdue.edu
  
  */
+`include "alu_if.vh"
+
+import cpu_types_pkg::*;
+
 
 module alu_fpga(
 
  input logic 	    CLOCK_50,
  input [3:0] 	    KEY, 
  input logic [17:0] SW,
- output logic [17:0] LEDR,
  output logic [6:0] HEX0,
  output logic [6:0] HEX1,
  output logic [6:0] HEX2,
@@ -18,7 +21,8 @@ module alu_fpga(
  output logic [6:0] HEX4,
  output logic [6:0] HEX5,
  output logic [6:0] HEX6,
- output logic [6:0] HEX7		
+ output logic [6:0] HEX7,
+ output logic [2:0] LEDR		
  
 );
 
@@ -31,8 +35,8 @@ word_t b_reg; //register to store port B
 
 
 //Map aluif to fpga hw
-assign aluif.porB = b_reg; //set portB input to b_reg   
-assign aluif.portA = {16{SW[16]} , {SW[15:0] }}; //set 32 bit portA
+assign aluif.portB = b_reg; //set portB input to b_reg   
+assign aluif.portA = {{16{SW[16]}} , {SW[15:0]}}; //set 32 bit portA
 
 //Assign Alu Op code input
 assign aluif.aluop[0] = !KEY[0];
@@ -41,20 +45,21 @@ assign aluif.aluop[2] = !KEY[2];
 assign aluif.aluop[3] = !KEY[3];
 
 //assign LEDs to flags
-assign aluif.zero = LED[0];
-assign aluif.neg = LED[1];
-assign aluif.ovf = LED[2];
+assign LEDR[0] = aluif.zero;
+assign LEDR[1] = aluif.neg;
+   assign LEDR[2] = aluif.ovf;
+   
 
 //update b_reg using SW[17] as an enable
-always_ff @(posedge CLKOCK_50)
+always_ff @(posedge CLOCK_50)
 begin
-     b_reg <= SW[17] ? {16{SW[16]} , {SW[15:0]}} : b_reg; //change if sw[17] is high
+     b_reg <= SW[17] ? {{16{SW[16]}} , {SW[15:0]}} : b_reg; //change if sw[17] is high
 end
 
 //Always comb to map the 7 segment LEDs
 always_comb
   begin
-      unique casez (aluif.result[0:3])
+      unique casez (aluif.result[3:0])
       'h0: HEX0 = 7'b1000000;
       'h1: HEX0 = 7'b1111001;
       'h2: HEX0 = 7'b0100100;
@@ -90,7 +95,7 @@ always_comb
       'he: HEX1 = 7'b0000110;
       'hf: HEX1 = 7'b0001110;
       endcase // unique casez (aluif.result[7:4])
-      unique casez (aluif.reslult[11:8])
+      unique casez (aluif.result[11:8])
       'h0: HEX2 = 7'b1000000;
       'h1: HEX2 = 7'b1111001;
       'h2: HEX2 = 7'b0100100;
@@ -126,7 +131,7 @@ always_comb
       'he: HEX3 = 7'b0000110;
       'hf: HEX3 = 7'b0001110;
       endcase // unique casez (aluif.result[15:12])
-      unique casez (19:16)
+      unique casez (aluif.result[19:16])
       'h0: HEX4 = 7'b1000000;
       'h1: HEX4 = 7'b1111001;
       'h2: HEX4 = 7'b0100100;
@@ -199,3 +204,4 @@ always_comb
       'hf: HEX7 = 7'b0001110;
     endcase
   end
+endmodule

@@ -15,31 +15,35 @@ alu_if.alu alu
 import cpu_types_pkg::*; //for ALU cases
    
    
-logic carry;
-   
-assign alu.ovf = ({carry, alu.result[31]} == 2'b01) || ({carry, alu.result[31]} == 2'b10); //check for overflow, underflow
-assign alu.zero = (alu.result == 31'b0); //check for zero
-assign alu.neg = (alu.result < 31'b0); //check for negative
+ 
+//assign alu.ovf = ({alu.portA[30], alu.result[31]} == 3'b01) || ({carry, alu.result[31]} == 2'b10); //check for overflow, underflow
+assign alu.zero = (alu.result == 32'h0); //check for zero
+assign alu.neg = (alu.result[31]); //check for negative
    
 always_comb
 begin
    alu.result = 0; //default value
+   alu.ovf = 0;
+   
    case(alu.aluop)
      ALU_ADD:
        begin
-	  {carry, alu.result} = $signed(alu.portA) + $signed(alu.portB); //Add
+	  alu.result = $signed(alu.portA) + $signed(alu.portB); //Add
+	  alu.ovf = (~alu.portA[31] && ~alu.portB[31] && alu.result[31]) || (alu.portA[31] && alu.portB[31] && ~alu.result[31]);
        end
      ALU_SUB:
        begin
-	  {carry,alu.result} = $signed(alu.portA) - $signed(alu.portB); //Sub
+	  alu.result = $signed(alu.portA) - $signed(alu.portB); //Sub
+	  alu.ovf = (alu.portA[31] && ~alu.portB[31] && ~alu.result[31]) || (~alu.portA[31] && alu.portB[31] && alu.result[31]);
+	  
        end
      ALU_AND:
        begin
-	  alu.result = alu.portA & alu.portB; //bitwise and
+	  alu.result = (alu.portA & alu.portB); //bitwise and
        end
      ALU_OR:
        begin
-	  alu.result = alu.portA | alu.portB; //bitwise or
+	  alu.result = (alu.portA | alu.portB); //bitwise or
        end
      ALU_SLL:
        begin
@@ -47,7 +51,7 @@ begin
        end
      ALU_SRL:
        begin
-	  alu.result = {1'b0,portA[31:1]}; //logical shift right, could be portA>>1
+	  alu.result = {1'b0,alu.portA[31:1]}; //logical shift right, could be portA>>1
        end
      ALU_XOR:
        begin
@@ -59,12 +63,14 @@ begin
        end
      ALU_SLT:
        begin
-	  alu.result = ($signed(alu.portA) < $signed(alu.portB)) ? 32'h0 : 32'h1; //signed less than
+	  alu.result = ($signed(alu.portA) < $signed(alu.portB)) ? 32'h1 : 32'h0; //signed less than
        end
      ALU_SLTU:
        begin
 	  alu.result = (alu.portA < alu.portB) ? 32'b1 : 32'b0;//unsigned less than
 	  
        end
-   
-end   
+     endcase
+end
+
+endmodule

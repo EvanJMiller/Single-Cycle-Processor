@@ -1,0 +1,24 @@
+//Mult procedure
+	
+	org 0x0000 //start of the program
+
+	ori $sp,$zero,0xfffc  //store the starting point of the stack
+
+	ori $s0, $zero, 0x0004
+	ori $s1, $zero, 0x0005
+	ori $s2, $zero, 0x0005
+	ori $s3, $zero, 0x0002
+	
+	ori $s4, $zero, 0x0001 //saved as a const
+
+	addi $sp, $sp, -16
+	sw $s0, 16($sp)
+	sw $s1, 12($sp)
+	sw $s2, 8($sp)
+	sw $s3, 4($sp) //num ops
+	jal multiply
+	halt
+
+
+	
+
