@@ -47,11 +47,11 @@ begin
        end
      ALU_SLL:
        begin
-	  alu.result = {alu.portA[30:0], 1'b0}; //logical shift left, could be portA<<1
+	  alu.result = alu.portA << alu.portB; //logical shift left, could be portA<<1
        end
      ALU_SRL:
        begin
-	  alu.result = {1'b0,alu.portA[31:1]}; //logical shift right, could be portA>>1
+	  alu.result = alu.portA >> alu.portB; //logical shift right, could be portA>>1
        end
      ALU_XOR:
        begin
